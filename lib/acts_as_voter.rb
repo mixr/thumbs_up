@@ -83,6 +83,17 @@ module ThumbsUp #:nodoc:
         Vote.create!(:vote => direction, :voteable => voteable, :voter => self)
       end
 
+      # updates existing vote objects or creates new ones
+      def vote_force(voteable, options = {})
+        vote_object = Vote.find_by_voteable_type_and_voteable_id_and_voter_type_and_voter_id(voteable.class.name, voteable.id, self.class.name, self.id)
+        if vote_object
+          value = options[:direction] == :up ? true : false
+          vote_object.update_attribute(:vote, value)
+        else
+          vote(voteable, options)
+        end
+      end
+
       def clear_votes(voteable)
         Vote.where(
           :voter_id => self.id,
